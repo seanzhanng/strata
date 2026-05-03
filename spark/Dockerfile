@@ -1,4 +1,6 @@
-FROM bitnami/spark:3.5
+FROM apache/spark:3.5.4-python3
+
+USER root
 
 WORKDIR /app
 
