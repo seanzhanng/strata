@@ -5,3 +5,11 @@ services:
       - ./data:/app/data
       - ./spark/delta:/app/spark/delta
     command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 ${SPARK_SCRIPT:-bronze/ingest.py}
+
+  agent:
+    build: ./agent
+    volumes:
+      - ./spark/delta:/app/spark/delta
+    environment: 
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 agent.py
