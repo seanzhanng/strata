@@ -35,6 +35,9 @@ preds = model.predict(X_test)
 rmse = mean_squared_error(y_test, preds, squared=False)
 r2 = r2_score(y_test, preds)
 
+mlflow.set_tracking_uri("file:///app/ml/mlruns")
+mlflow.set_experiment("strata-fare-prediction")
+
 with mlflow.start_run():
     mlflow.log_param("model_type", "linear_regression")
     mlflow.log_param("test_size", 0.2)
