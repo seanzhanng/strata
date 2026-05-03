@@ -4,4 +4,4 @@ services:
     volumes:
       - ./data:/app/data
       - ./spark/delta:/app/spark/delta
-    command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 bronze/ingest.py
+    command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 ${SPARK_SCRIPT:-bronze/ingest.py}
