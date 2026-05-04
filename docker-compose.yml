@@ -13,4 +13,6 @@ services:
       - ./spark/delta:/app/spark/delta
     environment: 
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 agent.py
+    ports:
+      - "8000:8000"
+    command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 ${AGENT_SCRIPT:-api.py}

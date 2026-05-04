@@ -20,5 +20,6 @@ agent = create_tool_calling_agent(llm, [run_query], prompt)
 executor = AgentExecutor(agent=agent, tools=[run_query])
 
 # test
-output = executor.invoke({"input": "which day had the most trips"})
-print(output["output"])
+if __name__ == "__main__":
+    output = executor.invoke({"input": "which day had the most trips"})
+    print(output["output"])
