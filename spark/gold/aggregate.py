@@ -15,7 +15,7 @@ agg1 = df.groupBy(to_date("tpep_pickup_datetime").alias("pickup_date")).agg(
     sum("total_amount").alias("total_revenue"),
     avg("trip_distance").alias("avg_distance")
 )
-agg1.write.format("delta").mode("overwrite").save("spark/delta/gold/date")
+agg1.orderBy("pickup_date").write.format("delta").mode("overwrite").save("spark/delta/gold/date")
 
 agg2 = df.groupBy("PULocationID").agg(
     count("*").alias("trip_count"),
@@ -23,14 +23,14 @@ agg2 = df.groupBy("PULocationID").agg(
     sum("total_amount").alias("total_revenue"),
     avg("trip_distance").alias("avg_distance")
 )
-agg2.write.format("delta").mode("overwrite").save("spark/delta/gold/pickup_location")
+agg2.orderBy("PULocationID").write.format("delta").mode("overwrite").save("spark/delta/gold/pickup_location")
 
 agg3 = df.groupBy(hour("tpep_pickup_datetime").alias("pickup_hour")).agg(
     count("*").alias("trip_count"),
     avg("fare_amount").alias("avg_fare"),
     avg("tip_amount").alias("avg_tip")
 )
-agg3.write.format("delta").mode("overwrite").save("spark/delta/gold/hour")
+agg3.orderBy("pickup_hour").write.format("delta").mode("overwrite").save("spark/delta/gold/hour")
 
 agg4 = df.groupBy("payment_type").agg(
     count("*").alias("trip_count"),

@@ -1,65 +1,185 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+interface DateRow {
+  pickup_date: string;
+  trip_count: number;
+  avg_fare: number;
+  total_revenue: number;
+  avg_distance: number;
+}
+
+interface HourRow {
+  pickup_hour: number;
+  trip_count: number;
+  avg_fare: number;
+  avg_tip: number;
+}
+
+interface PaymentRow {
+  payment_type: number;
+  trip_count: number;
+  avg_total: number;
+  avg_tip: number;
+}
+
+interface LocationRow {
+  PULocationID: number;
+  trip_count: number;
+  avg_fare: number;
+  total_revenue: number;
+  avg_distance: number;
+}
+
+const PAYMENT_LABELS: Record<number, string> = {
+  1: "Credit Card",
+  2: "Cash",
+  3: "No Charge",
+  4: "Dispute",
+};
+
+const PIE_COLORS = ["#2563eb", "#f59e0b", "#10b981", "#ef4444"];
+
+export default function Dashboard() {
+  const [dateData, setDateData] = useState<DateRow[]>([]);
+  const [hourData, setHourData] = useState<HourRow[]>([]);
+  const [paymentData, setPaymentData] = useState<PaymentRow[]>([]);
+  const [locationData, setLocationData] = useState<LocationRow[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/gold/date`)
+      .then((res) => res.json())
+      .then((data) =>
+        setDateData([...data].sort((a: DateRow, b: DateRow) => a.pickup_date.localeCompare(b.pickup_date)))
+      );
+
+    fetch(`${API_URL}/api/gold/hour`)
+      .then((res) => res.json())
+      .then((data) =>
+        setHourData([...data].sort((a: HourRow, b: HourRow) => a.pickup_hour - b.pickup_hour))
+      );
+
+    fetch(`${API_URL}/api/gold/payment_type`)
+      .then((res) => res.json())
+      .then((data) => setPaymentData(data));
+
+    fetch(`${API_URL}/api/gold/pickup_location`)
+      .then((res) => res.json())
+      .then((data) =>
+        setLocationData(
+          [...data].sort((a: LocationRow, b: LocationRow) => b.trip_count - a.trip_count).slice(0, 15)
+        )
+      );
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="p-8">
+      <h1 className="text-2xl font-bold mb-8">Strata</h1>
+
+      <section className="mb-12">
+        <h2 className="text-lg font-semibold mb-4">Daily Trips — January 2026</h2>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={dateData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="pickup_date"
+                tickFormatter={(val) => new Date(val).getDate().toString()}
+              />
+              <YAxis />
+              <Tooltip
+                labelFormatter={(val) =>
+                  new Date(val).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="trip_count"
+                stroke="#2563eb"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-lg font-semibold mb-4">Trips by Hour of Day</h2>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={hourData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="pickup_hour" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="trip_count" fill="#2563eb" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-lg font-semibold mb-4">Trips by Payment Type</h2>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={paymentData}
+                dataKey="trip_count"
+                nameKey="payment_type"
+                cx="50%"
+                cy="50%"
+                outerRadius={120}
+                label={(props: { payment_type?: number; percent?: number }) => {
+                  const name = PAYMENT_LABELS[props.payment_type ?? 0] || props.payment_type;
+                  return `${name} (${((props.percent ?? 0) * 100).toFixed(1)}%)`;
+                }}
+              >
+                {paymentData.map((_, i) => (
+                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-lg font-semibold mb-4">Top 15 Pickup Locations</h2>
+        <div className="h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={locationData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis dataKey="PULocationID" type="category" width={60} />
+              <Tooltip />
+              <Bar dataKey="trip_count" fill="#2563eb" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+    </main>
   );
 }
