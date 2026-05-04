@@ -16,3 +16,11 @@ services:
     ports:
       - "8000:8000"
     command: spark-submit --packages io.delta:delta-spark_2.12:3.3.0 ${AGENT_SCRIPT:-api.py}
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    command: bun run start
+    depends_on:
+      - agent
