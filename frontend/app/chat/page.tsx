@@ -38,10 +38,8 @@ export default function Chat() {
   };
 
   return (
-    <main className="flex flex-col h-screen p-8">
-      <h1 className="text-2xl font-bold mb-4">Strata Chat</h1>
-
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+    <main className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto p-8 space-y-4">
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -61,7 +59,7 @@ export default function Chat() {
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="p-4 border-t border-neutral-800 flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
